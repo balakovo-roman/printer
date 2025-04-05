@@ -3,7 +3,11 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <string_view>
 #include <type_traits>
+
+using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 template <typename T>
 std::enable_if_t<std::is_integral_v<T>, void> print_ip(T value)
@@ -24,9 +28,20 @@ std::enable_if_t<std::is_integral_v<T>, void> print_ip(T value)
     std::cout << '\n';
 }
 
+template <typename T>
+std::enable_if_t<std::is_convertible_v<T, std::string_view>, void> print_ip(
+    const T& value)
+{
+    std::cout << value << std::endl;
+}
+
 int main()
 {
     print_ip(int8_t{-1});
     print_ip(uint16_t{0});
     print_ip(int32_t{2130706433});
+    print_ip(int64_t{8875824491850138409});
+    print_ip("Hello, World!"s);
+    print_ip("Hello, World!"sv);
+    print_ip("Hello, World!");
 }
