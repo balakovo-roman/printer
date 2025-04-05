@@ -74,6 +74,26 @@ std::enable_if_t<std::disjunction_v<is_vector<T>, is_list<T>>, void> print_ip(
     std::cout << '\n';
 }
 
+template <typename T, typename... Ts>
+constexpr bool all_types_are_same = std::conjunction_v<std::is_same<T, Ts>...>;
+
+template <typename... Args>
+void print_ip(const std::tuple<Args...>& tuple)
+{
+    static_assert(all_types_are_same<Args...>,
+                  "All tuple elements must be of the same type");
+
+    std::apply(
+        [](const Args&... args)
+        {
+            std::size_t n{0};
+            ((std::cout << args << (++n != sizeof...(Args) ? '.' : char{})),
+             ...);
+            std::cout << '\n';
+        },
+        tuple);
+}
+
 int main()
 {
     print_ip(int8_t{-1});
@@ -81,8 +101,7 @@ int main()
     print_ip(int32_t{2130706433});
     print_ip(int64_t{8875824491850138409});
     print_ip("Hello, World!"s);
-    print_ip("Hello, World!"sv);
-    print_ip("Hello, World!");
     print_ip(std::vector{100, 200, 300, 400});
     print_ip(std::list<short>{400, 300, 200, 100});
+    print_ip(std::make_tuple(123, 456, 789, 0));
 }
