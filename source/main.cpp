@@ -3,11 +3,30 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <iterator>
+#include <list>
 #include <string_view>
 #include <type_traits>
+#include <vector>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
+
+template <template <typename...> class Container, typename T>
+struct is_container : std::false_type
+{
+};
+
+template <template <typename...> class Container, typename... Types>
+struct is_container<Container, Container<Types...>> : std::true_type
+{
+};
+
+template <typename T>
+using is_vector = is_container<std::vector, T>;
+
+template <typename T>
+using is_list = is_container<std::list, T>;
 
 template <typename T>
 std::enable_if_t<std::is_integral_v<T>, void> print_ip(T value)
@@ -30,9 +49,29 @@ std::enable_if_t<std::is_integral_v<T>, void> print_ip(T value)
 
 template <typename T>
 std::enable_if_t<std::is_convertible_v<T, std::string_view>, void> print_ip(
-    const T& value)
+    const T& string)
 {
-    std::cout << value << std::endl;
+    std::cout << string << '\n';
+}
+
+template <typename T>
+std::enable_if_t<std::disjunction_v<is_vector<T>, is_list<T>>, void> print_ip(
+    const T& container)
+{
+    const auto end = std::cend(container);
+    const auto prev = std::prev(end);
+
+    for (auto it = std::cbegin(container); it != end; ++it)
+    {
+        std::cout << *it;
+
+        if (it != prev)
+        {
+            std::cout << '.';
+        }
+    }
+
+    std::cout << '\n';
 }
 
 int main()
@@ -44,4 +83,6 @@ int main()
     print_ip("Hello, World!"s);
     print_ip("Hello, World!"sv);
     print_ip("Hello, World!");
+    print_ip(std::vector{100, 200, 300, 400});
+    print_ip(std::list<short>{400, 300, 200, 100});
 }
