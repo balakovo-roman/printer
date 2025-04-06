@@ -4,6 +4,8 @@ include(${CMAKE_SOURCE_DIR}/cmake/make-interface.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/make-static.cmake)
 
 add_subdirectory(logger)
+add_subdirectory(printer)
+add_subdirectory(traits)
 add_subdirectory(version)
 
 add_executable(${PROJECT_NAME} main.cpp)
